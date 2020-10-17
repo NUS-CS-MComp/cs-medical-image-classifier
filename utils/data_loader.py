@@ -15,9 +15,11 @@ class DataLoader:
     """
 
     def __init__(
-            self,
-            image_path: pathlib.Path = pathlib.Path(__file__).parent / "../data/train_image/train_image",
-            data_path: pathlib.Path = pathlib.Path(__file__).parent / "../data/train_label.csv",
+        self,
+        image_path: pathlib.Path = pathlib.Path(__file__).parent
+        / "../data/train_image/train_image",
+        data_path: pathlib.Path = pathlib.Path(__file__).parent
+        / "../data/train_label.csv",
     ):
         """
         Initiate data loader
@@ -33,11 +35,20 @@ class DataLoader:
         self.labels: Optional[pd.DataFrame] = None
         self.classes: Optional[np.ndarray] = None
         self.image_size: Optional[Tuple[int, int]] = None
+        self.standardize_image = False
 
         self.training_ds: Optional[tf.data.Dataset] = None
         self.validation_ds: Optional[tf.data.Dataset] = None
 
-    def load(self, batch_size=32, seed=123, image_height=512, image_width=512, validation_split=0.2):
+    def load(
+        self,
+        batch_size=32,
+        seed=123,
+        image_height=512,
+        image_width=512,
+        validation_split=0.2,
+        standardize=True,
+    ):
         """
         Main function to load dataset object
         :param batch_size: Batch size
@@ -45,6 +56,7 @@ class DataLoader:
         :param image_height: Image height
         :param image_width: Image width
         :param validation_split: Train/validation split ratio
+        :param standardize: Standardization flag
         :return: Pre-fetched training and validation TensorFlow dataset object
         """
 
@@ -52,12 +64,17 @@ class DataLoader:
         logger.info(f"Reading label .csv data at {self.data_path.resolve()}")
         labels = pd.read_csv(self.data_path)
         self.labels = labels.set_index("ID")
-        self.classes = sorted(labels["Label"].unique())  # Important to sort class label in ascending order
+        self.classes = sorted(
+            labels["Label"].unique()
+        )  # Important to sort class label in ascending order
         self.image_size = (image_height, image_width)
+        self.standardize_image = standardize
 
         # Load image data
         logger.info(f"Reading image data at {self.image_path.resolve()}")
-        image_ds = tf.data.Dataset.list_files(str(self.image_path / f"*.png"), shuffle=True, seed=seed)
+        image_ds = tf.data.Dataset.list_files(
+            str(self.image_path / "*.png"), shuffle=True, seed=seed
+        )
         image_count = len(image_ds)
 
         # Train-validation data split
@@ -67,17 +84,29 @@ class DataLoader:
 
         # Map custom process flow
         logger.info("Running custom input pipelines")
-        train_ds = train_ds.map(self.process_path, num_parallel_calls=tf.data.experimental.AUTOTUNE)
-        val_ds = val_ds.map(self.process_path, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        train_ds = train_ds.map(
+            self.process_path, num_parallel_calls=tf.data.experimental.AUTOTUNE
+        )
+        val_ds = val_ds.map(
+            self.process_path, num_parallel_calls=tf.data.experimental.AUTOTUNE
+        )
 
         # Add performance configuration on training and validation set
         logger.info("Tuning dataset batch loading performance")
-        train_ds = DataLoader.configure_for_performance(train_ds, batch_size=batch_size)
-        val_ds = DataLoader.configure_for_performance(val_ds, batch_size=batch_size)
+        train_ds = DataLoader.configure_for_performance(
+            train_ds, batch_size=batch_size
+        )
+        val_ds = DataLoader.configure_for_performance(
+            val_ds, batch_size=batch_size
+        )
 
         # Start dataset buffer loading and return prefetched instances
-        self.training_ds = train_ds.cache().prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
-        self.validation_ds = val_ds.cache().prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+        self.training_ds = train_ds.cache().prefetch(
+            buffer_size=tf.data.experimental.AUTOTUNE
+        )
+        self.validation_ds = val_ds.cache().prefetch(
+            buffer_size=tf.data.experimental.AUTOTUNE
+        )
 
         return self.training_ds, self.validation_ds
 
@@ -89,9 +118,12 @@ class DataLoader:
         """
         label_name = self.get_label(file_path)
         image_file = tf.io.read_file(file_path)
-        image_data = DataLoader.decode_image(image_file,
-                                             image_height=self.image_size[0],
-                                             image_width=self.image_size[1])
+        image_data = DataLoader.decode_image(
+            image_file,
+            image_height=self.image_size[0],
+            image_width=self.image_size[1],
+            standardize=self.standardize_image,
+        )
         return image_data, label_name
 
     def get_label(self, file_path: str):
@@ -102,7 +134,10 @@ class DataLoader:
         """
         file_name = tf.strings.split(file_path, os.sep)[-1]
         file_id = tf.strings.split(file_name, ".")[-2]
-        label_name = tf.gather_nd(self.labels, [tf.strings.to_number(file_id, out_type=tf.dtypes.int32)])
+        label_name = tf.gather_nd(
+            self.labels,
+            [tf.strings.to_number(file_id, out_type=tf.dtypes.int32)],
+        )
         return tf.argmax(label_name == self.classes)
 
     @property
@@ -128,13 +163,21 @@ class DataLoader:
         return dataset
 
     @staticmethod
-    def decode_image(image_file: object, image_height: int, image_width: int):
+    def decode_image(
+        image_file: object,
+        image_height: int,
+        image_width: int,
+        standardize: bool,
+    ):
         """
         Helper function to decode image file
         :param image_file: Image buffer file
         :param image_height: Image height
         :param image_width: Image width
+        :param standardize: Standardization flag
         :return: Decoded image file in Tensor form
         """
         image_data = tf.image.decode_png(image_file, channels=3)
+        if standardize:
+            image_data = tf.image.per_image_standardization(image_data)
         return tf.image.resize(image_data, [image_height, image_width])
