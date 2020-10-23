@@ -138,8 +138,10 @@ dmypy.json
 cython_debug/
 
 # Project specifics
+.DS_Store
 .idea/
 checkpoints/
 data/
-.DS_Store
 models/**/
+notebooks/notebook.key
+notebooks/notebook.pem
