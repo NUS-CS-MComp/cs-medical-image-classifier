@@ -142,6 +142,5 @@ cython_debug/
 .idea/
 checkpoints/
 data/
-models/**/
 notebooks/notebook.key
 notebooks/notebook.pem

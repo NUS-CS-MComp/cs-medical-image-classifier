@@ -17,7 +17,7 @@ def process_path(
     image_data = decode_image(
         image_file, image_height=image_height, image_width=image_width
     )
-    image_data /= 255.0
+    # image_data /= 255.0
     return tf.expand_dims(image_data, 0)
 
 
