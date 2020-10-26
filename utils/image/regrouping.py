@@ -4,14 +4,7 @@ import shutil
 
 import pandas as pd
 
-from utils.configuration import (
-    DATA_DIR,
-    ORIGIN_TRAIN_DATA_DIR,
-    TRAIN_LABEL_DATA_PATH,
-)
 from utils.logging import logger
-
-TARGET_IMAGE_DIR = DATA_DIR / "train_image/regrouped"
 
 
 def copy_image_to_label_folder(
@@ -40,9 +33,9 @@ def copy_image_to_label_folder(
 
 
 def regroup_data(
-    label_file_path=TRAIN_LABEL_DATA_PATH,
-    origin_image_dir=ORIGIN_TRAIN_DATA_DIR,
-    target_image_dir=TARGET_IMAGE_DIR,
+    label_file_path: pathlib.Path,
+    origin_image_dir: pathlib.Path,
+    target_image_dir: pathlib.Path,
 ):
     """
     Group images by labels and copy to separate paths
@@ -58,5 +51,16 @@ def regroup_data(
 
 
 if __name__ == "__main__":
+    from utils.configuration import (
+        DATA_DIR,
+        ORIGIN_TRAIN_DATA_DIR,
+        TRAIN_LABEL_DATA_PATH,
+    )
+
+    TARGET_IMAGE_DIR = DATA_DIR / "train_image/regrouped"
     logger.setLevel(logging.DEBUG)
-    regroup_data()
+    regroup_data(
+        label_file_path=TRAIN_LABEL_DATA_PATH,
+        origin_image_dir=ORIGIN_TRAIN_DATA_DIR,
+        target_image_dir=TARGET_IMAGE_DIR,
+    )

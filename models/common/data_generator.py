@@ -1,4 +1,5 @@
 import pathlib
+from typing import Callable, Union
 
 import tensorflow as tf
 
@@ -11,11 +12,8 @@ class DataGenerator:
     """
 
     AUGMENTATION_OPTIONS = dict(
-        zoom_range=0.1,
-        rotation_range=0.2,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        shear_range=0.2,
+        zoom_range=0.3,
+        rotation_range=15,
         horizontal_flip=True,
     )
     DATAGEN_KWARGS = dict(validation_split=VALIDATION_SPLIT)
@@ -23,14 +21,22 @@ class DataGenerator:
         target_size=IMAGE_SIZE, batch_size=BATCH_SIZE, interpolation="bilinear"
     )
 
-    def __init__(self, data_dir: pathlib.Path, rescale_data: bool = True):
+    def __init__(
+        self,
+        data_dir: pathlib.Path,
+        preprocessing_function: Union[Callable, None],
+    ):
         """
         Initialize a training data generator
         :param data_dir: training data path object
-        :param rescale_data: boolean flag to rescale data
+        :param preprocessing_function: specific preprocessing function to use
         """
         self.data_dir = data_dir
-        extra_config = dict(rescale=1.0 / 255.0) if rescale_data else {}
+        extra_config = (
+            dict(rescale=1.0 / 255.0)
+            if preprocessing_function is None
+            else dict(preprocessing_function=preprocessing_function)
+        )
         train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
             **DataGenerator.AUGMENTATION_OPTIONS,
             **DataGenerator.DATAGEN_KWARGS,
