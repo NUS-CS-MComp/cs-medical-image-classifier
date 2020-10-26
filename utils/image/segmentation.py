@@ -9,7 +9,7 @@ def segment_from_image(
 ):
     """
     Segment critical parts from image array
-    :param image_array: Image in numpy array form
+    :param image_array: image in numpy array form
     :param erosion: erosion connectivity factor
     :param closing: closing connectivity factor
     :param dilation: dilation connectivity factor
