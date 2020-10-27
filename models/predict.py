@@ -156,7 +156,7 @@ if __name__ == "__main__":
     activation = "softmax"
     path = (
         MODEL_CHECKPOINT_PATH
-        / "transfer_vgg16_block4/10271314_cgavg_fc1512_fc2256_d30_i224/fine-tuned-epoch-89-loss-0.1643"
+        / "transfer_vgg16_o_block4/10271314_cgavg_fc1512_fc2256_d30_i224/fine-tuned-epoch-89-loss-0.1643"
     )
     built_model, preprocessing = load_transfer_model(
         input_shape=IMAGE_SHAPE,

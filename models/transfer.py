@@ -86,18 +86,22 @@ if __name__ == "__main__":
     )
     from utils.configuration import IMAGE_SHAPE, TRAIN_EPOCH
 
-    model_tag = "resnet50"
-    block_name_to_freeze = "conv4"
-    model_state = dict(
-        connection="ga",
-        fc1=512,
-        fc2=256,
-        dropout=30,
-        image_size=IMAGE_SHAPE[0],
+    model_tag = "vgg16" + (
+        "_p" if "processed" in str(TRAIN_DATA_DIR) else "_o"
     )
-    model_package = tf.keras.applications.resnet50
+    block_name_to_freeze = "block4"
+
+    # model_state = dict(
+    #     connection="ga",
+    #     fc1=512,
+    #     fc2=256,
+    #     dropout=30,
+    #     image_size=IMAGE_SHAPE[0],
+    # )
+
+    model_package = tf.keras.applications.vgg16
     original_model, preprocess_input = (
-        model_package.ResNet50,
+        model_package.VGG16,
         model_package.preprocess_input,
     )
 
@@ -112,13 +116,12 @@ if __name__ == "__main__":
     # Callbacks
     model_early_stopping_callback = generate_early_stopping_callback()
     model_checkpoint_callback = generate_model_checkpoint_callback(
-        __file__, tag=f"{model_tag}_{block_name_to_freeze}", state=model_state
+        __file__, tag=f"{model_tag}_{block_name_to_freeze}"
     )
     model_fine_tuning_checkpoint_callback = generate_model_checkpoint_callback(
         __file__,
         tag=f"{model_tag}_{block_name_to_freeze}",
         is_fine_tuning=True,
-        state=model_state,
     )
     model_learning_rate_callback = generate_learning_rate_schedule_callback(
         start_learning_rate=1e-3, exp_decay=1e-2

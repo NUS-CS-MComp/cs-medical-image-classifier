@@ -38,7 +38,7 @@ def generate_model_checkpoint_callback(
         MODEL_CHECKPOINT_PATH
         / f"{model_name}/{model_timestamp}{format_state_string(state)}"
     )
-    fine_tuning_flag = "fine-tuned-" if is_fine_tuning else ""
+    fine_tuning_flag = "ft-" if is_fine_tuning else ""
     return tf.keras.callbacks.ModelCheckpoint(
         filepath=f"{model_parent_path.absolute()}/{fine_tuning_flag}epoch-{{epoch:02d}}-loss-{{val_loss:.4f}}",
         verbose=1,
@@ -54,7 +54,11 @@ def generate_early_stopping_callback():
     :return: callback object
     """
     return tf.keras.callbacks.EarlyStopping(
-        monitor="val_loss", patience=10, min_delta=0.001, mode="min"
+        monitor="val_loss",
+        patience=8,
+        min_delta=0.001,
+        mode="min",
+        restore_best_weights=True,
     )
 
 

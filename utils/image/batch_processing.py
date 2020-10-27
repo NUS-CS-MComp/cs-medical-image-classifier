@@ -80,5 +80,8 @@ if __name__ == "__main__":
         )
         p.starmap(
             process_image,
-            ((file, TEST_DATA_DIR, None, False) for file in test_image_files),
+            (
+                (file, TEST_DATA_DIR, None, transform, False)
+                for file in test_image_files
+            ),
         )
