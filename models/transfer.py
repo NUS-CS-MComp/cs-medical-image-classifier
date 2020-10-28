@@ -105,6 +105,8 @@ if __name__ == "__main__":
         model_package.preprocess_input,
     )
 
+    # from classification_models.tfkeras import Classifiers
+
     # original_model, preprocess_input = Classifiers.get("resnet18")
 
     # Data generator
@@ -142,6 +144,13 @@ if __name__ == "__main__":
     model.summary()
 
     # exit()
+
+    # lr_schedule = tf.optimizers.schedules.ExponentialDecay(1e-3, 100, 0.9)
+    # wd_schedule = tf.optimizers.schedules.ExponentialDecay(5e-5, 100, 0.9)
+    # optimizer = tfa.optimizers.AdamW(
+    #     learning_rate=lr_schedule, weight_decay=lambda: None
+    # )
+    # optimizer.weight_decay = lambda: wd_schedule(optimizer.iterations)
 
     model.compile(
         optimizer=tf.keras.optimizers.Adam(1e-3),

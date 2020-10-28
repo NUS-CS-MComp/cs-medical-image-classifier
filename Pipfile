@@ -24,6 +24,7 @@ scipy = "==1.5.2"
 image-classifiers = "==1.0.0"
 scikit-image = "==0.17.1"
 urllib3 = "==1.21.1"
+tensorflow-addons = "==0.11.2"
 
 [requires]
 python_version = "3.8"
