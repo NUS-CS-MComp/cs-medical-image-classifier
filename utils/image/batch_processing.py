@@ -3,9 +3,9 @@ import pathlib
 from multiprocessing import Pool
 from typing import Callable
 
-import numpy as np
+import cv2
 import pandas as pd
-from PIL import Image
+from matplotlib.image import imsave
 
 from utils.logging import logger
 
@@ -43,10 +43,9 @@ def process_image(
         return
 
     # Process image if no file has been created
-    image = Image.open(image_path)
-    image_array = np.array(image)
+    image_array = cv2.imread(str(image_path), 0)
     image_array_processed = transformation_function(image_array)
-    Image.fromarray(image_array_processed).save(new_file)
+    imsave(new_file, image_array_processed, cmap="gray")
     logger.debug(f"Processed and added new file {new_file}")
 
 
@@ -59,7 +58,7 @@ if __name__ == "__main__":
         TRAIN_DATA_DIR,
         TEST_DATA_DIR,
     )
-    from utils.image.rescale_intensity import transform
+    from utils.image.k_means_segmentation import transform
 
     LABEL_DF = pd.read_csv(TRAIN_LABEL_DATA_PATH).set_index("ID")
 
