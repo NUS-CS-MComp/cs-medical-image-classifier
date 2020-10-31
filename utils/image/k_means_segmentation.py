@@ -3,7 +3,9 @@ from skimage import exposure, morphology, measure, restoration
 from sklearn.cluster import KMeans
 
 
-def transform(image_array, k_means_cluster=2, boundary_factor=5):
+def transform(
+    image_array, k_means_cluster=2, boundary_factor=10, only_cropped=True
+):
     """
     Transform using K-means segmentation
     from https://www.raddq.com/dicom-processing-segmentation-visualization-in-python/ with small adjustments
@@ -11,12 +13,14 @@ def transform(image_array, k_means_cluster=2, boundary_factor=5):
     :param image_array: image array
     :param k_means_cluster: number of clusters
     :param boundary_factor: boundary to locate the center
+    :param only_cropped: boolean flag for cropping out region only without mask
     :return: transformed image
     """
 
     # Convert to grayscale and do basic transformation
     image_array = exposure.equalize_adapthist(image_array, clip_limit=0.01)
     image_array = restoration.denoise_bilateral(image_array)
+    transformed_image_array = np.copy(image_array)
 
     # Calculate image features
     row_size = image_array.shape[0]
@@ -61,8 +65,8 @@ def transform(image_array, k_means_cluster=2, boundary_factor=5):
     mask = np.where(image_array < threshold, 1, 0)
 
     # Morphological transformation
-    eroded = morphology.erosion(mask, np.ones((4, 4)))
-    dilation = morphology.dilation(eroded, np.ones((1, 1)))
+    eroded = morphology.erosion(mask, np.ones((6, 6)))
+    dilation = morphology.dilation(eroded, np.ones((3, 3)))
 
     # Labelling
     labels = measure.label(dilation)
@@ -77,9 +81,10 @@ def transform(image_array, k_means_cluster=2, boundary_factor=5):
         area, coords, box = region[0], region[2], region[3]
         select_current_label = False
         is_valid_shape = (
-            box[2] - box[0] < row_size * 0.998
-            and box[3] - box[1] < col_size * 0.998
-            and abs(box[2] + box[0] - row_size) / row_size < 0.5
+            (box[2] - box[0]) / row_size <= 1
+            and (box[3] - box[1]) / col_size <= 0.75
+            and abs(box[2] + box[0] - row_size) / row_size <= 0.5
+            and abs(box[3] + box[1] - col_size) / col_size <= 0.75
         )
 
         if is_valid_shape:
@@ -94,9 +99,6 @@ def transform(image_array, k_means_cluster=2, boundary_factor=5):
     final = pre_final * image_array
 
     # Cropping
-    if len(selected_regions) == 0:
-        return final
-
     regions_bbox = np.array([region[1] for region in selected_regions]).T
     new_bbox = np.concatenate(
         (regions_bbox.min(axis=1)[:2], regions_bbox.max(axis=1)[2:])
@@ -123,6 +125,10 @@ def transform(image_array, k_means_cluster=2, boundary_factor=5):
 
     min_r = max(0, min_r)
     min_c = max(0, min_c)
+
     final_cropped = final[min_r:max_r, min_c:max_c]
+
+    if only_cropped:
+        final_cropped = transformed_image_array[min_r:max_r, min_c:max_c]
 
     return final_cropped

@@ -58,7 +58,7 @@ if __name__ == "__main__":
         TRAIN_DATA_DIR,
         TEST_DATA_DIR,
     )
-    from utils.image.k_means_segmentation import transform
+    from utils.image.equalize_hist import transform
 
     LABEL_DF = pd.read_csv(TRAIN_LABEL_DATA_PATH).set_index("ID")
 
