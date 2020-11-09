@@ -16,7 +16,7 @@ TEST_DATA_DIR = DATA_DIR / "test_image/test_image"
 CONCURRENT_PROCESSING_THRESHOLD = 4
 
 # Training related configuration
-BATCH_SIZE = 32
+BATCH_SIZE = 16
 SEED = 137
 IMAGE_SIZE = (512, 512)
 IMAGE_SHAPE = IMAGE_SIZE + (3,)

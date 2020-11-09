@@ -139,8 +139,10 @@ cython_debug/
 
 # Project specifics
 .DS_Store
+.gcp/
 .idea/
 checkpoints/
 data/
 notebooks/notebook.key
 notebooks/notebook.pem
+
