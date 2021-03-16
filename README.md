@@ -1,4 +1,4 @@
-[![current-rank](https://hook.integromat.com/335n1wou4m21r4f5iwk5xn8mestiqd5t?type=rank)](https://www.kaggle.com/c/nus-cs5242/leaderboard) [![current-score](https://hook.integromat.com/335n1wou4m21r4f5iwk5xn8mestiqd5t?type=score)](https://www.kaggle.com/c/nus-cs5242/leaderboard) [![made-with-python](https://img.shields.io/badge/Made%20with-Tensorflow-1f425f.svg)](https://www.tensorflow.org/)
+[![current-rank](https://img.shields.io/badge/Rank-28-1f425f.svg)](https://www.kaggle.com/c/nus-cs5242/leaderboard) [![current-score](https://img.shields.io/badge/Score-0.93835-1f425f.svg)](https://www.kaggle.com/c/nus-cs5242/leaderboard) [![made-with-python](https://img.shields.io/badge/Made%20with-Tensorflow-1f425f.svg)](https://www.tensorflow.org/)
 
 # CS5242 Final Project - Group 26
 
